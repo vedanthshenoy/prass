@@ -18,7 +18,7 @@ client = genai.Client(
 )
 
 
-async def run():
+async def run(user_query : str):
     async with sse_client(url="http://localhost:8000/sse") as streams:
         async with ClientSession(*streams) as session:
 
@@ -39,7 +39,7 @@ async def run():
             
             response = client.models.generate_content(
                 model="gemini-2.0-flash",  # Or your preferred model supporting function calling
-                contents="Can you add 2 and 3",
+                contents= user_query,
                 config=types.GenerateContentConfig(
                     temperature=0.7,
                     tools=[tools],
@@ -59,10 +59,12 @@ async def run():
                 print("No function call found in the response.")
                 print(response.text)
                 
+                
             
 
 
-asyncio.run(run())
+if __name__ == "__main__":
+    asyncio.run(run(user_query="Can you add 2 and 30"))
 # if __name__ == "__main__":
 #     try:
 #         result = asyncio.run(main())

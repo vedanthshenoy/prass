@@ -59,9 +59,6 @@ fonttools==4.53.0
 frozenlist==1.4.1
 fsspec==2024.10.0
 future==1.0.0
-geemap==0.32.1
-geocoder==1.38.1
-geopandas==0.14.4
 gitdb==4.0.11
 GitPython==3.1.43
 gnews==0.3.7
