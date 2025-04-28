@@ -15,8 +15,9 @@ By **standardizing the interface** between models and function calling, we make 
 ```
 ╭─────────────╮     ╭───────────────╮     ╭─────────────╮
 │             │     │               │     │             │
-│ LLM Client  ├────►│  MCP Server    ├────►│  Functions  │
-│             │     │ (API Handler)  │     │ (Add, Multiply) │
+│ LLM Client  ├────►│  MCP Server   ├────►│  Functions  │
+│             │     │ (API Handler) │     │ (Add,       |
+                                              Multiply) │
 ╰─────────────╯     ╰───────────────╯     ╰─────────────╯
 (Llama, Gemini, etc.)             (Handles API requests)
 ```
