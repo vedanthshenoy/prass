@@ -2,11 +2,9 @@ import os
 import sys
 import warnings
 from dotenv import load_dotenv
-from smolagents import ToolCollection, CodeAgent, LiteLLMModel, Tool
+from smolagents import ToolCollection, CodeAgent, LiteLLMModel, Tool, MultiStepAgent
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.sse import sse_client
-from langchain_core.prompts import ChatPromptTemplate
-import subprocess
 import asyncio
 # Set UTF-8 encoding environment variable for PowerShell
 os.environ["PYTHONUTF8"] = "1"
@@ -28,8 +26,8 @@ async def main():
     )
     
     with ToolCollection.from_mcp({"url": "http://127.0.0.1:8000/sse"}, trust_remote_code=True) as tool_collection:
-        agent = CodeAgent(tools=[*tool_collection.tools], add_base_tools=True, model=model)     
-        input_data = "What is 5+6"
+        agent = MultiStepAgent(tools=[*tool_collection.tools], add_base_tools=False, model=model)     
+        input_data = "Whats secret pin of V?"
         result = agent.run(input_data)  # Add await here
         print(result)
         return result

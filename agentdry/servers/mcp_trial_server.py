@@ -14,6 +14,10 @@ def multiply(a: int, b: int) -> int:
     """Multiply two numbers"""
     return a * b
 
+@mcp.tool()
+def secret_pin(a : str):
+    """For secret pin use this function"""
+    return ord(a) * 5 
 
 if __name__ == "__main__":
     # Initialize and run the server
