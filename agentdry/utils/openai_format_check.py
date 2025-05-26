@@ -12,7 +12,7 @@ def transform_schema(input_schema):
     # Transform properties
     for prop_name, prop_details in input_schema.get("properties", {}).items():
         output_schema["properties"][prop_name] = {
-            "type": "int" if prop_details.get("type") == "integer" else prop_details.get("type"),
+            "type": "integer" if prop_details.get("type") == "integer" else prop_details.get("type"),
             "description": f"The {'first' if prop_name == 'a' else 'second'} number"
         }
     
