@@ -44,8 +44,8 @@ def append_code_to_server_file(code_to_insert : str, file_path : str):
 # Example usage
 
 if __name__ == "__main__":
-    
-    file_path = r"C:\prass\agentdry\servers\mcp_server_autorestart.py"
+
+    file_path = r"..\servers\mcp_server_autorestart.py"
     code_to_insert = '''
     def new_function():
         """This is a new function with a docstring."""
