@@ -12,7 +12,7 @@ def transform_schema(input_schema):
     # Transform properties
     for prop_name, prop_details in input_schema.get("properties", {}).items():
         output_schema["properties"][prop_name] = {
-            "type": "int" if prop_details.get("type") == "integer" else prop_details.get("type"),
+            "type": "integer" if prop_details.get("type") == "integer" else prop_details.get("type"),
             "description": f"The {'first' if prop_name == 'a' else 'second'} number"
         }
     
@@ -111,13 +111,15 @@ if __name__ == "__main__":
                         }
                     }]
         
+    # import sys
+    # sys.path.append(r"C:\prass") #To add your own path and get this file to work independently
     from agentdry.clients.groq_client_mcp import client
 
     response = client.chat.completions.create(
                             messages=[
                                 {
                                     "role": "user",
-                                    "content": "How is claude today",
+                                    "content": "How are you today",
                                 }
                             ],
                             model = "llama-3.3-70b-versatile",
