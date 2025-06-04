@@ -3,8 +3,7 @@ import os
 
 # Add the 'agentdry' directory to the system path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-# from clients.groq_client_mcp import client as groq_client
-from clients.gemini_client_mcp import client as gemini_client
+
 from main import create_and_update_tool
 from utils.openai_format_check import parse_response
 
