@@ -41,58 +41,73 @@ client = Groq(
 )
 
 
-async def run(user_query : str):
-    async with sse_client(url="http://localhost:8000/sse") as streams:
-        async with ClientSession(*streams) as session:
+# ...existing imports and setup...
 
-            await session.initialize()
+async def load_tools(session):
+    tools_response = await session.list_tools()
+    return [
+        {
+            'type': 'function',
+            'function': {
+                "name": tool.name,
+                "description": tool.description,
+                "parameters": transform_schema(tool.inputSchema),
+            }
+        }
+        for tool in tools_response.tools
+    ]
 
-            # List available tools
-            tools = await session.list_tools()
-            
-            # print(tools)
-            
-            tools = [
-                {
-                    'type' : 'function',
-                    'function' : {
-                        "name" : tool.name,
-                        "description": tool.description,
-                        "parameters": transform_schema(tool.inputSchema),
-                    }
-                }
-                for tool in tools.tools
-            ]
-            
-            # print(tools)
-            
-            response = client.chat.completions.create(
-                        messages=[
-                            {
-                                "role": "user",
-                                "content": user_query,
-                            }
-                        ],
-                        model = "llama-3.3-70b-versatile",
-                        temperature = 0,
-                        tools = tools)
-        # Check for a function call
-            # if response[0]
-            result = parse_response(response)
-            # print(result)
-            if type(result)==dict:
-                print("Calling MCP tool", result["function_name"])
-                result = await session.call_tool(result['function_name'], arguments=result['function_args'])
-                print(result.content[0].text)
-            else:
-                print("No function call found in the response.")
-                print(result)
-                print("Creating tool for the query....")
-                topic = extract_info_and_create_tool(query=user_query)
-                create_and_update_tool(query=f"Create a function for {topic}")
-                
-            
+async def run():
+    while True:
+        try:
+            async with sse_client(url="http://localhost:8000/sse") as streams:
+                async with ClientSession(*streams) as session:
+                    await session.initialize()
+                    tools = await load_tools(session)
+                    messages = []
+                    while True:
+                        user_query = input("You: ")
+                        if user_query.lower() == "quit":
+                            return
+                        messages.append({"role": "user", "content": user_query})
 
+                        response = client.chat.completions.create(
+                            messages=messages,
+                            model="llama-3.3-70b-versatile",
+                            temperature=0,
+                            tools=tools
+                        )
+
+                        result = parse_response(response)
+                        messages.append({"role": "assistant", "content": str(result)})
+
+                        if type(result) == dict:
+                            print("Calling MCP tool", result["function_name"])
+                            tool_result = await session.call_tool(result['function_name'], arguments=result['function_args'])
+                            print("Bot:", tool_result.content[0].text)
+                            messages.append({"role": "tool", "tool_call_id": result.get("id", "tool_call_id"), "content": tool_result.content[0].text})
+                        else:
+                            print("Bot:", result)
+                            print("No function call found in the response.")
+                            print("Creating tool for the query....")
+                            topic = extract_info_and_create_tool(query=user_query)
+                            create_and_update_tool(query=f"Create a function for {topic}")
+                            print("Waiting for server to update tools...")
+                            await asyncio.sleep(3)  # <-- Delay to allow server to restart and register new tool
+                            try:
+                                tools = await load_tools(session)
+                                print("Tools reloaded. Current tools:")
+                                for tool in tools:
+                                    func = tool['function']
+                                    print(f"- {func['name']}: {func['description']}")
+                                print("You can now ask your question again.")
+                            except Exception as e:
+                                print(f"Message from server : I am ready now")
+                                break  # Break out to outer loop to reconnect session
+        except Exception as e:
+            print(f"Session error or server not available: {e}")
+            print("Retrying connection in 2 seconds...")
+            await asyncio.sleep(2)
 
 if __name__ == "__main__":
-    asyncio.run(run(user_query="Which airline made the highest profit in FY23"))
+    asyncio.run(run())
