@@ -45,7 +45,7 @@ code_parser = PydanticOutputParser(pydantic_object = Response)
 
 prompt = PromptTemplate(template = """
                         {format_instructions}
-                        User Input : Write a python function for this query {query}
+                        User Input : Write a python function for this query {query}. Start directly from def keyword. Never provide any heading or headers or source language. Add type hints and description.
                         """, input_variables = ["query"], partial_variables = {"format_instructions" : code_parser.get_format_instructions()})
 
 obtain_code_chain = prompt | llm | code_parser
